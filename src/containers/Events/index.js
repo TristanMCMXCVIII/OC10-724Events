@@ -13,25 +13,31 @@ const EventList = () => {
   const { data, error } = useData();
   const [type, setType] = useState();
   const [currentPage, setCurrentPage] = useState(1);
+
+  const sortedEvents = data?.events.sort((evtA, evtB) => // ajout de cette fonction à l'arrivée des datas pour les trier avant de passer le filtre de pagination
+    new Date(evtA.date) > new Date(evtB.date) ? -1 : 1
+  )
+  
   const filteredEvents = (
     (!type
-      ? data?.events
-      : data?.events) || []
-  ).filter((event, index) => {
-    if (
-      (currentPage - 1) * PER_PAGE <= index &&
-      PER_PAGE * currentPage > index
-    ) {
-      return true;
-    }
-    return false;
+      ? sortedEvents // essayé de mettre le sort ici mais ca ne rentre pasd 
+      : sortedEvents.filter(event => event.type === type)) // new filter for the filter
+  )?.filter((event, index) => { // filter for pages 
+    const startIndex = (currentPage - 1) * PER_PAGE;
+    const endIndex = startIndex + PER_PAGE;
+    return index >= startIndex && index < endIndex;
   });
+
   const changeType = (evtType) => {
+  
     setCurrentPage(1);
-    setType(evtType);
+    setType(evtType); // le composant ne doit pas se recharger avec le changement d'une state ? 
+    
   };
+  
   const pageNumber = Math.floor((filteredEvents?.length || 0) / PER_PAGE) + 1;
   const typeList = new Set(data?.events.map((event) => event.type));
+  
   return (
     <>
       {error && <div>An error occured</div>}
@@ -45,7 +51,7 @@ const EventList = () => {
             onChange={(value) => (value ? changeType(value) : changeType(null))}
           />
           <div id="events" className="ListContainer">
-            {filteredEvents.map((event) => (
+            {filteredEvents?.map((event) => (
               <Modal key={event.id} Content={<ModalEvent event={event} />}>
                 {({ setIsOpened }) => (
                   <EventCard

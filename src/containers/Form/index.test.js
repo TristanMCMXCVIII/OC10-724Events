@@ -11,7 +11,7 @@ describe("When Events is created", () => {
   });
 
   describe("and a click is triggered on the submit button", () => {
-    it("the success action is called", async () => {
+    it("the success action is called", async () => {   // EN ERREUR #1, pourtant ca semble bien fonctionner en pratique
       const onSuccess = jest.fn();
       render(<Form onSuccess={onSuccess} />);
       fireEvent(
@@ -22,7 +22,7 @@ describe("When Events is created", () => {
         })
       );
       await screen.findByText("En cours");
-      await screen.findByText("Envoyer");
+      await screen.findByText("Envoyer"); // erreur venant apparemment d'ici, pourtant il apparait bien 
       expect(onSuccess).toHaveBeenCalled();
     });
   });
